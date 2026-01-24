@@ -79,19 +79,19 @@ const SessionController = {
         });
       }
 
-      const userId = jwt.verify(
-        refreshToken,
-        process.env.JWT_REFRESH_SECRET,
-        (err, decoded) => {
-          if (err) {
-            return null;
-          }
+      let decoded;
+      try {
+        decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+      } catch (err) {
+        return res.status(403).json({
+          message: 'Invalid refresh token.',
+          data: null,
+        });
+      }
 
-          return decoded.userId;
-        }
-      );
+      const userId = decoded.userId;
 
-      if (userId === null) {
+      if (!userId) {
         return res.status(403).json({
           message: 'Invalid refresh token.',
           data: null,

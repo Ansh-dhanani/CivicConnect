@@ -47,8 +47,9 @@ const UserController = {
         },
       });
     } catch (err) {
+      console.error('User creation error:', err);
       return res.status(500).json({
-        message: err.message,
+        message: 'Internal server error.',
         data: null,
       });
     }
@@ -60,6 +61,13 @@ const UserController = {
 
       const user = await findUserById(userId);
 
+      if (!user) {
+        return res.status(404).json({
+          message: 'User not found.',
+          data: null,
+        });
+      }
+
       const userWithoutPassword = exclude(user, ['password']);
 
       return res.status(200).json({
@@ -69,7 +77,8 @@ const UserController = {
         },
       });
     } catch (err) {
-      res.status(500).json({
+      console.error('Show user error:', err);
+      return res.status(500).json({
         message: 'Internal server error.',
         data: null,
       });

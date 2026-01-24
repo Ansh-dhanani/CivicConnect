@@ -26,20 +26,26 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 40),
             Obx(() {
               final email = authController.userEmail.value;
-              final pfpUrl = "https://ui-avatars.com/api/?name=${Uri.encodeComponent(email)}&size=200&background=random";
-        
+              final displayName = email.split('@')[0].capitalizeFirst ?? "User";
+              // Generate initials (e.g., "J" or "JD" from display name)
+              // Since display name here is just email prefix, we take first letter
+              // If we had full name, we could split by space
+              final initials = displayName.isNotEmpty ? displayName[0].toUpperCase() : "U";
+
               return  Center(
                 child: Column(
                   children: [
                     CircleAvatar(
                       radius: 60,
-                      backgroundImage: NetworkImage(pfpUrl),
-                      onBackgroundImageError: (e, s) {},
                       backgroundColor: Colors.grey.shade200,
+                      child: Text(
+                        initials,
+                        style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+                      ),
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      email.split('@')[0].capitalizeFirst ?? "User",
+                      displayName,
                       style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     Text(

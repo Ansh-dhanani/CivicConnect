@@ -1,19 +1,30 @@
 import 'package:dio/dio.dart';
 
 class ApiService {
-  // For Android Emulator use 'http://10.0.2.2:4000/api'
-  // For Physical Device use your computer's IP address, e.g., 'http://192.168.1.5:4000/api'
-  // REPALCE THIS WITH YOUR COMPUTERS IP
-  static const String _baseUrl = 'http://10.23.231.85:4000/api'; 
-  
-  final Dio _dio = Dio(BaseOptions(
-    baseUrl: _baseUrl,
-    connectTimeout: const Duration(seconds: 5),
-    receiveTimeout: const Duration(seconds: 3),
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  ));
+
+  /*static const String _baseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'http://10.0.2.2:4000/api', // Android Emulator
+  );*/
+  static const String _baseUrl='http://10.23.231.85:4000/api';
+  late final Dio _dio;
+
+  ApiService() {
+    // Enforce HTTPS in release mode
+    const bool isRelease = bool.fromEnvironment('dart.vm.product');
+    if (isRelease && !_baseUrl.startsWith('https://')) {
+      throw Exception('Unsecure API URL in release build: $_baseUrl');
+    }
+
+    _dio = Dio(BaseOptions(
+      baseUrl: _baseUrl,
+      connectTimeout: const Duration(seconds: 5),
+      receiveTimeout: const Duration(seconds: 3),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    ));
+  }
 
   // Add interceptor to include token if needed
   void setToken(String token) {

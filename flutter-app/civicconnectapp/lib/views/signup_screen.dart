@@ -3,12 +3,31 @@ import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
 import 'login_screen.dart';
 
-class SignupScreen extends StatelessWidget {
-  final AuthController authController = Get.find<AuthController>();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
 
-  SignupScreen({super.key});
+  @override
+  State<SignupScreen> createState() => _SignupScreenState();
+}
+
+class _SignupScreenState extends State<SignupScreen> {
+  final AuthController authController = Get.find<AuthController>();
+  late final TextEditingController emailController;
+  late final TextEditingController passwordController;
+
+  @override
+  void initState() {
+    super.initState();
+    emailController = TextEditingController();
+    passwordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +94,7 @@ class SignupScreen extends StatelessWidget {
                     )),
                const SizedBox(height: 16),
               TextButton(
-                onPressed: () => Get.off(() => LoginScreen()),
+                onPressed: () => Get.off(() => const LoginScreen()),
                 child: const Text("Already have an account? Login"),
               ),
             ],
