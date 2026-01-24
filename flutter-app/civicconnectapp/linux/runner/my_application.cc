@@ -15,6 +15,17 @@ struct _MyApplication {
 G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
 
 // Implements GApplication::activate.
+/**
+ * @brief Create and present the main application window and embed the Flutter view.
+ *
+ * Configures window chrome (header bar vs. traditional title bar) based on the
+ * windowing environment, sets the window title and default size, constructs a
+ * FlDartProject with the application's stored Dart entrypoint arguments, creates
+ * and adds the FlView to the window, registers Flutter plugins, and gives the
+ * Flutter view input focus.
+ *
+ * @param application The GApplication instance invoking activation.
+ */
 static void my_application_activate(GApplication* application) {
   MyApplication* self = MY_APPLICATION(application);
   GtkWindow* window =
@@ -62,7 +73,22 @@ static void my_application_activate(GApplication* application) {
   gtk_widget_grab_focus(GTK_WIDGET(view));
 }
 
-// Implements GApplication::local_command_line.
+/**
+ * @brief Implements the GApplication::local_command_line handler.
+ *
+ * Captures command-line arguments for the Dart entrypoint (excluding the binary
+ * name), attempts to register the application, and activates the application.
+ *
+ * @param application The GApplication instance.
+ * @param arguments Pointer to the argv array; the binary name is removed and the
+ *                  remaining arguments are duplicated and stored in
+ *                  MyApplication->dart_entrypoint_arguments (caller does not
+ *                  retain ownership of the returned copy).
+ * @param exit_status Set to `0` on successful registration and activation,
+ *                    or `1` if application registration fails.
+ * @return gboolean Always returns `TRUE` to indicate the local command line
+ *         was handled.
+ */
 static gboolean my_application_local_command_line(GApplication* application, gchar*** arguments, int* exit_status) {
   MyApplication* self = MY_APPLICATION(application);
   // Strip out the first argument as it is the binary name.
@@ -81,7 +107,15 @@ static gboolean my_application_local_command_line(GApplication* application, gch
   return TRUE;
 }
 
-// Implements GApplication::startup.
+/**
+ * @brief Performs application startup initialization.
+ *
+ * Called when the GApplication is starting; implement application-specific
+ * startup actions here. This implementation delegates to the parent class's
+ * startup handler after performing any local initialization.
+ *
+ * @param application The GApplication instance being started.
+ */
 static void my_application_startup(GApplication* application) {
   //MyApplication* self = MY_APPLICATION(object);
 
@@ -90,7 +124,14 @@ static void my_application_startup(GApplication* application) {
   G_APPLICATION_CLASS(my_application_parent_class)->startup(application);
 }
 
-// Implements GApplication::shutdown.
+/**
+ * @brief Handle application shutdown and perform cleanup before exit.
+ *
+ * Performs any application-specific shutdown tasks and then invokes the parent
+ * GApplication shutdown implementation.
+ *
+ * @param application The GApplication instance being shut down.
+ */
 static void my_application_shutdown(GApplication* application) {
   //MyApplication* self = MY_APPLICATION(object);
 
@@ -99,13 +140,27 @@ static void my_application_shutdown(GApplication* application) {
   G_APPLICATION_CLASS(my_application_parent_class)->shutdown(application);
 }
 
-// Implements GObject::dispose.
+/**
+ * @brief Releases resources held by a MyApplication instance before object finalization.
+ *
+ * Frees the stored Dart entrypoint argument vector and continues the GObject dispose chain.
+ *
+ * @param object The GObject to dispose; expected to be a MyApplication instance.
+ */
 static void my_application_dispose(GObject* object) {
   MyApplication* self = MY_APPLICATION(object);
   g_clear_pointer(&self->dart_entrypoint_arguments, g_strfreev);
   G_OBJECT_CLASS(my_application_parent_class)->dispose(object);
 }
 
+/**
+ * @brief Initialize the MyApplicationClass by binding its lifecycle and dispose virtual methods.
+ *
+ * Assigns the class implementations for activate, local_command_line, startup, shutdown,
+ * and dispose so instances of MyApplication use the application's custom behavior.
+ *
+ * @param klass The MyApplicationClass structure to initialize.
+ */
 static void my_application_class_init(MyApplicationClass* klass) {
   G_APPLICATION_CLASS(klass)->activate = my_application_activate;
   G_APPLICATION_CLASS(klass)->local_command_line = my_application_local_command_line;
@@ -114,8 +169,26 @@ static void my_application_class_init(MyApplicationClass* klass) {
   G_OBJECT_CLASS(klass)->dispose = my_application_dispose;
 }
 
+/**
+ * @brief Initialize a MyApplication instance.
+ *
+ * Performs instance-specific initialization for MyApplication. Currently no
+ * additional instance state is required.
+ *
+ * @param self The MyApplication instance being initialized.
+ */
 static void my_application_init(MyApplication* self) {}
 
+/**
+ * @brief Create a new MyApplication instance configured for this program.
+ *
+ * The created instance is initialized with the application ID (`APPLICATION_ID`)
+ * and marked non-unique. The process program name is also set to
+ * `APPLICATION_ID` to improve integration with desktop environments.
+ *
+ * @return MyApplication* A newly created `MyApplication` instance (owned by the
+ * caller); the caller is responsible for unreferencing it when no longer needed.
+ */
 MyApplication* my_application_new() {
   // Set the program name to the application ID, which helps various systems
   // like GTK and desktop environments map this running application to its

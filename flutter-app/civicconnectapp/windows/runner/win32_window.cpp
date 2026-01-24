@@ -32,13 +32,29 @@ static int g_active_window_count = 0;
 using EnableNonClientDpiScaling = BOOL __stdcall(HWND hwnd);
 
 // Scale helper to convert logical scaler values to physical using passed in
-// scale factor
+/**
+ * @brief Converts a logical integer measurement to physical units using a scale factor.
+ *
+ * Multiplies `source` by `scale_factor` and returns the result converted to an `int`.
+ * The conversion from floating point to integer is performed by truncation.
+ *
+ * @param source Value in logical units to be scaled.
+ * @param scale_factor Scale multiplier where 1.0 preserves the original value.
+ * @return int The scaled value converted to `int` (truncated).
+ */
 int Scale(int source, double scale_factor) {
   return static_cast<int>(source * scale_factor);
 }
 
 // Dynamically loads the |EnableNonClientDpiScaling| from the User32 module.
-// This API is only needed for PerMonitor V1 awareness mode.
+/**
+ * @brief Enables non-client DPI scaling for the given window if the OS exposes the API.
+ *
+ * Attempts to enable non-client DPI scaling on the supplied window handle; if the
+ * required API is not available on the running system, this function has no effect.
+ *
+ * @param hwnd Handle to the window for which to enable non-client DPI scaling.
+ */
 void EnableFullDpiSupportIfAvailable(HWND hwnd) {
   HMODULE user32_module = LoadLibraryA("User32.dll");
   if (!user32_module) {
@@ -58,9 +74,20 @@ void EnableFullDpiSupportIfAvailable(HWND hwnd) {
 // Manages the Win32Window's window class registration.
 class WindowClassRegistrar {
  public:
-  ~WindowClassRegistrar() = default;
+  /**
+ * @brief Default destructor for WindowClassRegistrar.
+ *
+ * Ensures proper cleanup of the registrar object when it is destroyed.
+ */
+~WindowClassRegistrar() = default;
 
-  // Returns the singleton registrar instance.
+  /**
+   * @brief Returns the singleton instance of WindowClassRegistrar.
+   *
+   * Creates the singleton on first invocation and returns a pointer to it.
+   *
+   * @return WindowClassRegistrar* Pointer to the singleton WindowClassRegistrar.
+   */
   static WindowClassRegistrar* GetInstance() {
     if (!instance_) {
       instance_ = new WindowClassRegistrar();
@@ -77,7 +104,12 @@ class WindowClassRegistrar {
   void UnregisterWindowClass();
 
  private:
-  WindowClassRegistrar() = default;
+  /**
+ * @brief Default constructor.
+ *
+ * Private default constructor used to enforce the singleton lifetime of WindowClassRegistrar.
+ */
+WindowClassRegistrar() = default;
 
   static WindowClassRegistrar* instance_;
 
@@ -86,6 +118,14 @@ class WindowClassRegistrar {
 
 WindowClassRegistrar* WindowClassRegistrar::instance_ = nullptr;
 
+/**
+ * @brief Returns the window class name, registering the window class on first use.
+ *
+ * If the window class has not yet been registered, registers it with the process
+ * and marks it as registered before returning the class name.
+ *
+ * @return const wchar_t* The window class name (`kWindowClassName`).
+ */
 const wchar_t* WindowClassRegistrar::GetWindowClass() {
   if (!class_registered_) {
     WNDCLASS window_class{};
@@ -106,20 +146,51 @@ const wchar_t* WindowClassRegistrar::GetWindowClass() {
   return kWindowClassName;
 }
 
+/**
+ * @brief Unregisters the window class used by Win32Window instances.
+ *
+ * Removes the registered window class identified by kWindowClassName and updates
+ * the registrar state to reflect that the class is no longer registered.
+ *
+ * This should only be called when there are no active windows using the class.
+ */
 void WindowClassRegistrar::UnregisterWindowClass() {
   UnregisterClass(kWindowClassName, nullptr);
   class_registered_ = false;
 }
 
+/**
+ * @brief Constructs a Win32Window and increments the global active-window counter.
+ *
+ * Increments g_active_window_count to record that a new Win32Window instance exists.
+ */
 Win32Window::Win32Window() {
   ++g_active_window_count;
 }
 
+/**
+ * @brief Cleans up the Win32Window instance.
+ *
+ * Decrements the global active window count and destroys the associated native window, performing any necessary cleanup (such as unregistering the window class when this was the last active window).
+ */
 Win32Window::~Win32Window() {
   --g_active_window_count;
   Destroy();
 }
 
+/**
+ * @brief Creates a Win32 window for this wrapper and prepares it for use.
+ *
+ * The window position and size are interpreted in logical (96-DPI) units and
+ * are scaled to the monitor's DPI. Any existing window owned by this instance
+ * is destroyed before creation. The created window will be associated with
+ * this Win32Window instance and have theming applied.
+ *
+ * @param title Window title text.
+ * @param origin Upper-left origin in logical coordinates.
+ * @param size Size in logical coordinates.
+ * @return bool `true` if the window was created and OnCreate succeeded, `false` if window creation failed.
+ */
 bool Win32Window::Create(const std::wstring& title,
                          const Point& origin,
                          const Size& size) {
@@ -149,11 +220,30 @@ bool Win32Window::Create(const std::wstring& title,
   return OnCreate();
 }
 
+/**
+ * @brief Shows the window using the normal display state.
+ *
+ * @return `true` if the window was previously visible, `false` otherwise.
+ */
 bool Win32Window::Show() {
   return ShowWindow(window_handle_, SW_SHOWNORMAL);
 }
 
-// static
+/**
+ * @brief Window procedure used by the registered window class to route messages to a Win32Window instance.
+ *
+ * Handles initial creation by associating the native HWND with its Win32Window wrapper, enabling
+ * non-client DPI scaling when available, and storing the wrapper pointer for later retrieval.
+ * For subsequent messages, it retrieves the associated Win32Window and delegates processing to
+ * that instance's MessageHandler; if no instance is associated, it falls back to DefWindowProc.
+ *
+ * @param window The handle to the window receiving the message.
+ * @param message The Windows message identifier.
+ * @param wparam Additional message-specific information.
+ * @param lparam Additional message-specific information.
+ * @return LRESULT The result of message processing: the value returned by MessageHandler when delegated,
+ * or the value returned by DefWindowProc otherwise.
+ */
 LRESULT CALLBACK Win32Window::WndProc(HWND const window,
                                       UINT const message,
                                       WPARAM const wparam,
@@ -173,6 +263,18 @@ LRESULT CALLBACK Win32Window::WndProc(HWND const window,
   return DefWindowProc(window, message, wparam, lparam);
 }
 
+/**
+ * @brief Processes Win32 window messages for this Win32Window instance.
+ *
+ * Handles destruction, DPI changes, resize, activation, and colorization/theme change messages,
+ * applying appropriate window or child-content adjustments and triggering cleanup or theme updates.
+ *
+ * @param hwnd The window handle that received the message.
+ * @param message The message identifier (e.g., WM_DESTROY, WM_DPICHANGED).
+ * @param wparam Additional message-specific information.
+ * @param lparam Additional message-specific information.
+ * @return LRESULT `0` when the message was handled by this method; otherwise the result of `DefWindowProc`.
+ */
 LRESULT
 Win32Window::MessageHandler(HWND hwnd,
                             UINT const message,
@@ -221,6 +323,12 @@ Win32Window::MessageHandler(HWND hwnd,
   return DefWindowProc(window_handle_, message, wparam, lparam);
 }
 
+/**
+ * @brief Destroys the window and performs cleanup.
+ *
+ * Calls OnDestroy(), destroys the associated HWND if present and clears the handle,
+ * and when no active Win32Window instances remain unregisters the window class.
+ */
 void Win32Window::Destroy() {
   OnDestroy();
 
@@ -233,11 +341,25 @@ void Win32Window::Destroy() {
   }
 }
 
+/**
+ * @brief Retrieves the Win32Window wrapper associated with a native HWND.
+ *
+ * @param window Native window handle to query.
+ * @return Win32Window* Pointer to the associated Win32Window, or `nullptr` if no association exists.
+ */
 Win32Window* Win32Window::GetThisFromHandle(HWND const window) noexcept {
   return reinterpret_cast<Win32Window*>(
       GetWindowLongPtr(window, GWLP_USERDATA));
 }
 
+/**
+ * @brief Sets and hosts a child window inside this Win32Window.
+ *
+ * Reparents the provided window into this window, resizes and moves it to
+ * cover the current client area, and gives it input focus.
+ *
+ * @param content Handle to the child window to attach and display within this window.
+ */
 void Win32Window::SetChildContent(HWND content) {
   child_content_ = content;
   SetParent(content, window_handle_);
@@ -249,29 +371,66 @@ void Win32Window::SetChildContent(HWND content) {
   SetFocus(child_content_);
 }
 
+/**
+ * @brief Retrieves the window's client-area rectangle.
+ *
+ * @return RECT The client-area rectangle in client coordinates; fields are left, top, right, and bottom
+ *               (origin typically at 0,0). */
 RECT Win32Window::GetClientArea() {
   RECT frame;
   GetClientRect(window_handle_, &frame);
   return frame;
 }
 
+/**
+ * @brief Retrieves the native Win32 window handle associated with this wrapper.
+ *
+ * @return HWND The window handle, or `nullptr` if the window has not been created or has been destroyed.
+ */
 HWND Win32Window::GetHandle() {
   return window_handle_;
 }
 
+/**
+ * @brief Sets whether closing this window should terminate the application.
+ *
+ * @param quit_on_close If `true`, the window will post a quit message when destroyed; if `false`, destroying the window will not post a quit message.
+ */
 void Win32Window::SetQuitOnClose(bool quit_on_close) {
   quit_on_close_ = quit_on_close;
 }
 
+/**
+ * @brief Called after the native window has been created to perform initialization.
+ *
+ * The default implementation performs no action. Subclasses may override to
+ * run setup logic that requires a valid window handle.
+ *
+ * @return `true` if initialization succeeded, `false` otherwise.
+ */
 bool Win32Window::OnCreate() {
   // No-op; provided for subclasses.
   return true;
 }
 
+/**
+ * @brief Hook invoked when the window is being destroyed.
+ *
+ * Called during the window destruction sequence; override in subclasses to perform
+ * cleanup or teardown work specific to derived window implementations.
+ */
 void Win32Window::OnDestroy() {
   // No-op; provided for subclasses.
 }
 
+/**
+ * @brief Applies the user's preferred app theme (light or dark) to the specified window.
+ *
+ * Reads the `AppsUseLightTheme` value from the current user's registry key and, if present,
+ * enables or disables immersive dark mode for the provided window via `DwmSetWindowAttribute`.
+ *
+ * @param window Handle to the window whose theme should be updated.
+ */
 void Win32Window::UpdateTheme(HWND const window) {
   DWORD light_mode;
   DWORD light_mode_size = sizeof(light_mode);

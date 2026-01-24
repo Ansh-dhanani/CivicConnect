@@ -5,6 +5,19 @@
 #include "flutter_window.h"
 #include "utils.h"
 
+/**
+ * @brief Application entry point that initializes the runtime and runs the main window loop.
+ *
+ * Initializes console attachment and COM, configures a Flutter Dart project with
+ * command-line arguments, creates and shows the main Flutter window, and executes
+ * the standard Win32 message loop until the application exits. Cleans up COM before returning.
+ *
+ * @param instance Handle to the current instance of the application.
+ * @param prev Reserved; not used.
+ * @param command_line Command line string for the current process.
+ * @param show_command Specifies how the window is to be shown.
+ * @return int `EXIT_SUCCESS` on normal termination, `EXIT_FAILURE` if window creation fails.
+ */
 int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
                       _In_ wchar_t *command_line, _In_ int show_command) {
   // Attach to console when present (e.g., 'flutter run') or create a
