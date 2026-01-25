@@ -51,6 +51,9 @@ class AuthController extends GetxController {
         // If validation fails, clear local data
         await _storageService.clearAuthData();
         await _apiService.clearToken();
+        authToken.value = '';
+        userEmail.value = '';
+        fullName.value = '';
         isAuthenticated.value = false;
       }
     } catch (e) {
@@ -155,7 +158,7 @@ class AuthController extends GetxController {
     // Clear local storage
     await _storageService.clearAuthData();
     
-    _apiService.clearToken();
+    await _apiService.clearToken();
     Get.offAll(() => LoginScreen());
   }
 

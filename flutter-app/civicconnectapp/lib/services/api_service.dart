@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart'; // Import for kDebugMode
 
 class ApiService {
   // Singleton pattern - ensures same instance is used everywhere
@@ -23,7 +24,7 @@ class ApiService {
     
     const bool isRelease = bool.fromEnvironment('dart.vm.product');
     if (isRelease && !_baseUrl.startsWith('https://')) {
-      print('⚠️ Warning: Using insecure HTTP URL in release build: $_baseUrl');
+      if (kDebugMode) print('⚠️ Warning: Using insecure HTTP URL in release build: $_baseUrl');
     }
 
     _dio = Dio(BaseOptions(
@@ -44,30 +45,35 @@ class ApiService {
         
         if (token != null && token.isNotEmpty) {
           options.headers['Authorization'] = 'Bearer $token';
-          print('🔑 Token attached for ${options.path}');
+          if (kDebugMode) print('🔑 Token attached for ${options.path}');
         } else {
-          print('⚠️ No token found in storage for ${options.path}');
+          if (kDebugMode) print('⚠️ No token found in storage for ${options.path}');
         }
         
-        print('📡 API Request: ${options.method} ${options.baseUrl}${options.path}');
-        if (options.queryParameters.isNotEmpty) {
-          print('   Query: ${options.queryParameters}');
+        if (kDebugMode) {
+          print('📡 API Request: ${options.method} ${options.baseUrl}${options.path}');
+          if (options.queryParameters.isNotEmpty) {
+            print('   Query: ${options.queryParameters}');
+          }
         }
         
         return handler.next(options);
       },
       onError: (error, handler) {
-        print('❌ API Error: ${error.response?.statusCode} - ${error.message}');
-        print('   URL: ${error.requestOptions.baseUrl}${error.requestOptions.path}');
-        if (error.response?.statusCode == 401) {
-          print('❌ Unauthorized! Token might be invalid or expired');
-        }
-        if (error.response?.statusCode == 404) {
-          print('❌ Not Found! Endpoint does not exist on backend');
-          print('   Check if backend route is correct');
+        if (kDebugMode) {
+          print('❌ API Error: ${error.response?.statusCode} - ${error.message}');
+          print('   URL: ${error.requestOptions.baseUrl}${error.requestOptions.path}');
+          if (error.response?.statusCode == 401) {
+            print('❌ Unauthorized! Token might be invalid or expired');
+          }
+          if (error.response?.statusCode == 404) {
+            print('❌ Not Found! Endpoint does not exist on backend');
+            print('   Check if backend route is correct');
+          }
         }
         return handler.next(error);
       },
+
     ));
     
     print('✅ ApiService initialized with token interceptor. Base URL: $_baseUrl');

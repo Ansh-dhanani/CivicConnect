@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import '../controllers/complaint_controller.dart';
 
@@ -14,20 +15,24 @@ class _MyComplaintsScreenState extends State<MyComplaintsScreen> {
   final ComplaintController complaintController = Get.put(ComplaintController());
   String selectedStatus = 'all';
 
+  void _log(Object? msg) {
+    if (kDebugMode) debugPrint(msg?.toString());
+  }
+
   @override
   void initState() {
     super.initState();
-    print('📱 MyComplaintsScreen initialized');
+    _log('📱 MyComplaintsScreen initialized');
     _loadComplaints();
   }
 
   Future<void> _loadComplaints() async {
     try {
-      print('📥 Fetching complaints with status: $selectedStatus');
+      _log('📥 Fetching complaints with status: $selectedStatus');
       await complaintController.fetchMyComplaints(status: selectedStatus);
-      print('✅ Complaints loaded: ${complaintController.myComplaints.length}');
+      _log('✅ Complaints loaded: ${complaintController.myComplaints.length}');
     } catch (e) {
-      print('❌ Error loading complaints: $e');
+      _log('❌ Error loading complaints: $e');
       Get.snackbar(
         'Error',
         'Failed to load complaints: $e',
@@ -118,46 +123,51 @@ class _MyComplaintsScreenState extends State<MyComplaintsScreen> {
       final title = complaint['title']?.toString() ?? 'No Title';
       final description = complaint['description']?.toString() ?? '';
       final category = complaint['category']?.toString() ?? 'other';
-      final upvotes = complaint['upvotes_count'] ?? complaint['upvote_count'] ?? complaint['upvotes'] ?? 0;
+      
+      final upvotesRaw = complaint['upvotes_count'] ?? complaint['upvote_count'] ?? complaint['upvotes'];
+      final upvotes = (upvotesRaw is num)
+          ? upvotesRaw.toInt()
+          : int.tryParse(upvotesRaw?.toString() ?? '') ?? 0;
+          
       final createdAt = complaint['created_at']?.toString() ?? '';
       
       // Debug: Print raw complaint data
-      print('📦 Raw complaint data:');
-      print('   Images field: ${complaint['images']}');
-      print('   Images type: ${complaint['images'].runtimeType}');
+      _log('📦 Raw complaint data:');
+      _log('   Images field: ${complaint['images']}');
+      _log('   Images type: ${complaint['images'].runtimeType}');
       
       // Handle images - could be array of strings or array of objects
       List<String> imageUrls = [];
       if (complaint['images'] != null) {
         final imagesData = complaint['images'];
-        print('   Processing images data: $imagesData');
+        _log('   Processing images data: $imagesData');
         
         if (imagesData is List) {
-          print('   Images is a List with ${imagesData.length} items');
+          _log('   Images is a List with ${imagesData.length} items');
           for (var i = 0; i < imagesData.length; i++) {
             var img = imagesData[i];
-            print('   Image $i: $img (type: ${img.runtimeType})');
+            _log('   Image $i: $img (type: ${img.runtimeType})');
             
             if (img is String) {
               imageUrls.add(img);
-              print('   ✅ Added string URL: $img');
+              _log('   ✅ Added string URL: $img');
             } else if (img is Map) {
-              print('   Image is Map with keys: ${img.keys}');
+              _log('   Image is Map with keys: ${img.keys}');
               // Try image_url first (Prisma default), then url
               if (img['image_url'] != null) {
                 imageUrls.add(img['image_url'].toString());
-                print('   ✅ Added image_url from map: ${img['image_url']}');
+                _log('   ✅ Added image_url from map: ${img['image_url']}');
               } else if (img['url'] != null) {
                 imageUrls.add(img['url'].toString());
-                print('   ✅ Added URL from map: ${img['url']}');
+                _log('   ✅ Added URL from map: ${img['url']}');
               }
             }
           }
         }
       }
       
-      print('   Final imageUrls: $imageUrls');
-      print('   Total images: ${imageUrls.length}');
+      _log('   Final imageUrls: $imageUrls');
+      _log('   Total images: ${imageUrls.length}');
 
       Color statusColor;
       IconData statusIcon;

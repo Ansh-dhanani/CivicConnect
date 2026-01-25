@@ -156,7 +156,17 @@ const ComplaintController = {
      try {
        const { lat, lng, radius = 1000 } = req.query;
        
-       if (!lat || !lng) return res.status(400).json({ message: 'lat and lng required' });
+       if (lat === undefined || lat === null || lat === '' || lng === undefined || lng === null || lng === '') {
+         return res.status(400).json({ message: 'lat and lng required' });
+       }
+
+       const userLat = parseFloat(lat);
+       const userLng = parseFloat(lng);
+       const maxRadius = parseFloat(radius);
+
+       if (!Number.isFinite(userLat) || !Number.isFinite(userLng) || !Number.isFinite(maxRadius)) {
+         return res.status(400).json({ message: 'Invalid lat/lng/radius' });
+       }
 
        // Fetch all complaints and calculate distance using Haversine formula
        // For production, you'd want to use PostGIS or add bounds filtering first
@@ -177,11 +187,6 @@ const ComplaintController = {
            }
          }
        });
-
-       // Calculate distance and filter
-       const userLat = parseFloat(lat);
-       const userLng = parseFloat(lng);
-       const maxRadius = parseFloat(radius);
 
        const nearbyComplaints = allComplaints
          .map(complaint => {
