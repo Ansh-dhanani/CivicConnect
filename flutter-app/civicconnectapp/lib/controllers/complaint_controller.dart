@@ -63,7 +63,8 @@ class ComplaintController extends GetxController {
       
       return false;
     } on DioException catch (e) {
-      String message = e.response?.data['message'] ?? 'Failed to submit complaint';
+      final data = e.response?.data;
+      String message = (data is Map ? data['message'] : null) ?? 'Failed to submit complaint';
       Get.snackbar('Error', message);
       return false;
     } catch (e) {
@@ -86,7 +87,8 @@ class ComplaintController extends GetxController {
         myComplaints.value = data['complaints'] ?? [];
       }
     } on DioException catch (e) {
-      String message = e.response?.data['message'] ?? 'Failed to fetch complaints';
+      final data = e.response?.data;
+      String message = (data is Map ? data['message'] : null) ?? 'Failed to fetch complaints';
       Get.snackbar('Error', message);
     } catch (e) {
       Get.snackbar('Error', 'An unexpected error occurred');
@@ -114,7 +116,8 @@ class ComplaintController extends GetxController {
         nearbyComplaints.value = data['complaints'] ?? [];
       }
     } on DioException catch (e) {
-      String message = e.response?.data['message'] ?? 'Failed to fetch nearby complaints';
+      final data = e.response?.data;
+      String message = (data is Map ? data['message'] : null) ?? 'Failed to fetch nearby complaints';
       Get.snackbar('Error', message);
     } catch (e) {
       Get.snackbar('Error', 'An unexpected error occurred');
@@ -134,7 +137,8 @@ class ComplaintController extends GetxController {
         await fetchMyComplaints();
       }
     } on DioException catch (e) {
-      String message = e.response?.data['message'] ?? 'Failed to upvote';
+      final data = e.response?.data;
+      String message = (data is Map ? data['message'] : null) ?? 'Failed to upvote';
       Get.snackbar('Error', message);
     } catch (e) {
       Get.snackbar('Error', 'An unexpected error occurred');
@@ -152,7 +156,8 @@ class ComplaintController extends GetxController {
         await fetchMyComplaints();
       }
     } on DioException catch (e) {
-      String message = e.response?.data['message'] ?? 'Failed to remove upvote';
+      final data = e.response?.data;
+      String message = (data is Map ? data['message'] : null) ?? 'Failed to remove upvote';
       Get.snackbar('Error', message);
     } catch (e) {
       Get.snackbar('Error', 'An unexpected error occurred');

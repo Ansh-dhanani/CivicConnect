@@ -3,9 +3,11 @@ import 'package:get/get.dart';
 import 'views/login_screen.dart';
 import 'services/api_service.dart';
 
-void main() {
-  // Initialize ApiService singleton
-  ApiService().initialize();
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize ApiService singleton (awaits environment setup)
+  await ApiService().initialize();
   
   runApp(const MyApp());
 }

@@ -41,7 +41,7 @@ const main = async () => {
   router.get('/complaints/my-complaints', isAuthenticated, ComplaintController.getMyComplaints);
   router.get('/complaints/nearby', ComplaintController.getNearby); // Public? Or auth? Doc says nothing, usually public or auth. Let's make public for map view.
   router.post('/complaints/:complaintId/upvote', isAuthenticated, ComplaintController.toggleUpvote);
-  router.delete('/complaints/:complaintId/upvote', isAuthenticated, ComplaintController.toggleUpvote); // Reuse toggle for simplicity or separate if strict
+  router.delete('/complaints/:complaintId/upvote', isAuthenticated, ComplaintController.removeUpvote); // Use dedicated remove method
 
   app.use('/api', router);
 

@@ -109,6 +109,10 @@ const UserController = {
 
         return res.json({ success: true, message: 'Profile updated successfully', data: userWithoutPassword });
     } catch (error) {
+        // P2025 is the error code for "Record to update not found."
+        if (error.code === 'P2025') {
+            return res.status(404).json({ message: 'User not found' });
+        }
         console.error('Update profile error:', error);
         return res.status(500).json({ message: 'Internal server error' });
     }

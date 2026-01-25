@@ -4,38 +4,31 @@ import 'package:crypto/crypto.dart';
 import 'dart:convert';
 
 class CloudinaryService {
-  // Your Cloudinary credentials - NO UPLOAD PRESET NEEDED!
-  static const String cloudName = 'do77spm1z';
-  static const String apiKey = '859591785377419';
-  static const String apiSecret = 'F6nbfVTv3SjZ86qmGfYGZYMT41U';
+  // Use environment variables or pass these in
+  // Run with: flutter run --dart-define=CLOUDINARY_CLOUD_NAME=your_name
+  static const String cloudName = String.fromEnvironment('CLOUDINARY_CLOUD_NAME', defaultValue: 'do77spm1z');
+  static const String apiKey = String.fromEnvironment('CLOUDINARY_API_KEY', defaultValue: '859591785377419');
+  
+  // Default upload preset for development - create this in Cloudinary or pass via env
+  static const String defaultUploadPreset = String.fromEnvironment('CLOUDINARY_UPLOAD_PRESET', defaultValue: 'civic_connect_unsigned');
   
   final Dio _dio = Dio();
 
-  /// Upload image to Cloudinary using SIGNED upload
-  /// Uses cloud name, API key, and API secret
-  /// NO upload preset needed!
-  Future<String> uploadImage(File imageFile) async {
+  /// Upload image to Cloudinary using UNSIGNED upload
+  /// Requires an upload preset to be configured in Cloudinary Dashboard
+  Future<String> uploadImage(File imageFile, {String? uploadPreset}) async {
     try {
+      final preset = uploadPreset ?? defaultUploadPreset;
       final url = 'https://api.cloudinary.com/v1_1/$cloudName/image/upload';
       
-      // Generate timestamp
-      final timestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-      
-      // Create signature
-      final folder = 'civic_connect/complaints';
-      final paramsToSign = 'folder=$folder&timestamp=$timestamp';
-      final signature = _generateSignature(paramsToSign);
-      
-      // Create form data with API key and signature
+      // Create form data validation
       FormData formData = FormData.fromMap({
         'file': await MultipartFile.fromFile(
           imageFile.path,
           filename: imageFile.path.split(Platform.pathSeparator).last,
         ),
-        'api_key': apiKey,
-        'timestamp': timestamp,
-        'signature': signature,
-        'folder': folder,
+        'upload_preset': preset,
+        'folder': 'civic_connect/complaints', // Folder can be defined in preset too
       });
 
       // Upload to Cloudinary
@@ -55,28 +48,20 @@ class CloudinaryService {
         throw Exception('Failed to upload image: ${response.statusCode}');
       }
     } catch (e) {
+      print('Cloudinary upload error. Ensure you have an UNSIGNED upload preset named "$defaultUploadPreset" or pass one.');
       throw Exception('Error uploading image: $e');
     }
   }
 
-  /// Generate SHA-1 signature for signed uploads
-  String _generateSignature(String paramsToSign) {
-    final bytes = utf8.encode('$paramsToSign$apiSecret');
-    final digest = sha1.convert(bytes);
-    return digest.toString();
-  }
-
   /// Upload multiple images to Cloudinary
-  /// Returns a list of secure URLs
-  Future<List<String>> uploadMultipleImages(List<File> imageFiles) async {
+  Future<List<String>> uploadMultipleImages(List<File> imageFiles, {String? uploadPreset}) async {
     List<String> uploadedUrls = [];
     
     for (File imageFile in imageFiles) {
       try {
-        String url = await uploadImage(imageFile);
+        String url = await uploadImage(imageFile, uploadPreset: uploadPreset);
         uploadedUrls.add(url);
       } catch (e) {
-        // Continue with other images even if one fails
         print('Failed to upload ${imageFile.path}: $e');
       }
     }

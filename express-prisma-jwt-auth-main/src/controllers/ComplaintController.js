@@ -1,4 +1,5 @@
 import { db } from '../utils/db.js';
+import crypto from 'crypto';
 
 const ComplaintController = {
   create: async (req, res) => {
@@ -9,10 +10,18 @@ const ComplaintController = {
         latitude, longitude, category, images, is_anonymous
       } = req.body;
 
-      if (!title || !description || !location_address || !latitude || !longitude) {
+      // Fix: Validate lat/long properly (allow 0) and check finiteness
+      if (!title || !description || !location_address || latitude === undefined || latitude === null || longitude === undefined || longitude === null) {
         return res.status(400).json({
           message: 'Missing required fields',
         });
+      }
+
+      const latNum = parseFloat(latitude);
+      const lngNum = parseFloat(longitude);
+      
+      if (!Number.isFinite(latNum) || !Number.isFinite(lngNum)) {
+        return res.status(400).json({ message: 'Invalid latitude/longitude' });
       }
 
       // Fetch user to get details if not anonymous
@@ -31,10 +40,11 @@ const ComplaintController = {
         }
       }
 
-      // Generate complaint number
+      // Generate complaint number securely to avoid race conditions
       const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-      const count = await db.complaint.count();
-      const complaintNumber = `CMP${dateStr}${String(count + 1).padStart(5, '0')}`;
+      // Use random suffix instead of count+1 to prevent collisions
+      const suffix = crypto.randomUUID().split('-')[0].toUpperCase();
+      const complaintNumber = `CMP${dateStr}-${suffix}`;
 
       // Create complaint using standard Prisma
       const complaint = await db.complaint.create({
@@ -49,8 +59,8 @@ const ComplaintController = {
           category: category || 'pothole',
           location_address,
           landmark: landmark || '',
-          latitude: parseFloat(latitude),
-          longitude: parseFloat(longitude),
+          latitude: latNum,
+          longitude: lngNum,
         }
       });
 
@@ -72,7 +82,7 @@ const ComplaintController = {
         message: 'Complaint submitted successfully',
         data: {
           complaint_id: complaint.id,
-          complaint_number: complaintNumber,
+          complaintNumber: complaint.complaint_number, // Consistent casing
           status: 'Submitted',
           created_at: complaint.created_at
         }
@@ -94,18 +104,25 @@ const ComplaintController = {
       
       // Map frontend status 'all' to undefined (no filter)
       if (status && status !== 'all') {
-          // The enum case might need matching. 
-          // Frontend might send 'in_progress', DB has 'In_Progress'.
-          // We need a mapper ideally, but assuming valid enum value for now or exact match.
-          // Let's try to map common ones.
           const statusMap = {
+              'pending': 'Submitted', // 'pending' in UI maps to 'Submitted' in DB
               'submitted': 'Submitted',
               'under_review': 'Under_Review',
               'in_progress': 'In_Progress',
               'resolved': 'Resolved',
+              'rejected': 'Rejected', // Added rejected mapping
               'closed': 'Closed'
           };
-          where.status = statusMap[status] || status; 
+          
+          const mappedStatus = statusMap[status.toLowerCase()] || statusMap[status];
+
+          if (mappedStatus) {
+            where.status = mappedStatus;
+          } else {
+             // Optional: Return error or ignore invalid status? 
+             // Ignoring to prevent crashing on random strings, or return 400
+             // where.status = status; // Fallback to raw status if not mapped? Risk of enum error
+          }
       }
 
       const complaints = await db.complaint.findMany({
@@ -210,36 +227,49 @@ const ComplaintController = {
         const { userId } = req.payload;
         const { complaintId } = req.params;
         const id = parseInt(complaintId);
+        
+        if (isNaN(id)) {
+            return res.status(400).json({ message: 'Invalid complaint ID' });
+        }
 
-        const existing = await db.complaintUpvote.findUnique({
-            where: {
-                complaint_id_user_id: {
-                    complaint_id: id,
-                    user_id: userId
+        // Use transaction for atomic operation
+        const result = await db.$transaction(async (tx) => {
+            const existing = await tx.complaintUpvote.findUnique({
+                where: {
+                    complaint_id_user_id: {
+                        complaint_id: id,
+                        user_id: userId
+                    }
                 }
+            });
+
+            if (existing) {
+                // Remove
+                await tx.complaintUpvote.delete({ where: { id: existing.id } });
+                await tx.complaint.update({
+                    where: { id },
+                    data: { upvotes_count: { decrement: 1 } }
+                });
+                return { action: 'removed', has_upvoted: false };
+            } else {
+                // Add
+                await tx.complaintUpvote.create({
+                    data: {
+                        complaint_id: id,
+                        user_id: userId
+                    }
+                });
+                await tx.complaint.update({
+                    where: { id },
+                    data: { upvotes_count: { increment: 1 } }
+                });
+                return { action: 'added', has_upvoted: true };
             }
         });
 
-        if (existing) {
-            // Remove
-            await db.complaintUpvote.delete({ where: { id: existing.id } });
-            await db.complaint.update({
-                where: { id },
-                data: { upvotes_count: { decrement: 1 } }
-            });
-            return res.json({ success: true, message: 'Upvote removed', has_upvoted: false });
+        if (result.action === 'removed') {
+             return res.json({ success: true, message: 'Upvote removed', has_upvoted: false });
         } else {
-            // Add
-            await db.complaintUpvote.create({
-                data: {
-                    complaint_id: id,
-                    user_id: userId
-                }
-            });
-            await db.complaint.update({
-                where: { id },
-                data: { upvotes_count: { increment: 1 } }
-            });
              return res.json({ success: true, message: 'Complaint upvoted', has_upvoted: true });
         }
 
@@ -247,6 +277,44 @@ const ComplaintController = {
         console.error('Toggle upvote error:', error);
         return res.status(500).json({ message: 'Internal server error' });
     }
+  },
+
+  removeUpvote: async (req, res) => {
+      try {
+          const { userId } = req.payload;
+          const { complaintId } = req.params;
+          const id = parseInt(complaintId);
+          
+          if (isNaN(id)) {
+              return res.status(400).json({ message: 'Invalid complaint ID' });
+          }
+          
+          await db.$transaction(async (tx) => {
+              const existing = await tx.complaintUpvote.findUnique({
+                  where: {
+                      complaint_id_user_id: {
+                          complaint_id: id,
+                          user_id: userId
+                      }
+                  }
+              });
+
+              if (existing) {
+                  await tx.complaintUpvote.delete({ where: { id: existing.id } });
+                  await tx.complaint.update({
+                      where: { id },
+                      data: { upvotes_count: { decrement: 1 } }
+                  });
+              }
+              // If not existing, do nothing (idempotent)
+          });
+          
+          return res.json({ success: true, message: 'Upvote removed', has_upvoted: false });
+
+      } catch (error) {
+          console.error('Remove upvote error:', error);
+          return res.status(500).json({ message: 'Internal server error' });
+      }
   }
 };
 

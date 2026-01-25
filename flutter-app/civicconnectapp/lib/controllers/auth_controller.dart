@@ -26,14 +26,32 @@ class AuthController extends GetxController {
     try {
       final token = await _storageService.getToken();
       if (token != null && token.isNotEmpty) {
-        authToken.value = token;
-        userEmail.value = await _storageService.getUserEmail() ?? '';
-        fullName.value = await _storageService.getFullName() ?? '';
-        isAuthenticated.value = true;
-        _apiService.setToken(token);
+        // Set token first so interceptor/service can use it
+        await _apiService.setToken(token);
         
-        // Navigate to main screen if logged in
-        Get.offAll(() => const MainScreen());
+        // Validate token with server by fetching profile
+        // This ensures revoked/expired tokens don't grant access
+        try {
+           final response = await _apiService.getUserProfile();
+           if (response.statusCode == 200) {
+             authToken.value = token;
+             userEmail.value = await _storageService.getUserEmail() ?? '';
+             fullName.value = await _storageService.getFullName() ?? '';
+             isAuthenticated.value = true;
+             
+             // Navigate to main screen if validation succeeds
+             Get.offAll(() => const MainScreen());
+             return;
+           }
+        } catch (e) {
+           print('Token validation failed: $e');
+           // Token invalid using backend check
+        }
+        
+        // If validation fails, clear local data
+        await _storageService.clearAuthData();
+        await _apiService.clearToken();
+        isAuthenticated.value = false;
       }
     } catch (e) {
       print('Error checking login status: $e');
@@ -63,13 +81,14 @@ class AuthController extends GetxController {
           fullName: user['full_name'],
         );
         
-        _apiService.setToken(token);
+        await _apiService.setToken(token);
         
         Get.offAll(() => const MainScreen());
         Get.snackbar('Success', 'Logged in successfully');
       }
     } on DioException catch (e) {
-      String message = e.response?.data['message'] ?? 'Login failed';
+      final data = e.response?.data;
+      String message = (data is Map ? data['message'] : null) ?? 'Login failed';
       Get.snackbar('Error', message);
     } catch (e) {
       Get.snackbar('Error', 'An unexpected error occurred');
@@ -111,13 +130,14 @@ class AuthController extends GetxController {
           fullName: user['full_name'] ?? fullName,
         );
 
-        _apiService.setToken(token);
-
+        await _apiService.setToken(token);
+        
         Get.offAll(() => const MainScreen());
         Get.snackbar('Success', 'Account created successfully');
       }
     } on DioException catch (e) {
-      String message = e.response?.data['message'] ?? 'Registration failed';
+      final data = e.response?.data;
+      String message = (data is Map ? data['message'] : null) ?? 'Registration failed';
       Get.snackbar('Error', message);
     } catch (e) {
       Get.snackbar('Error', 'An unexpected error occurred');

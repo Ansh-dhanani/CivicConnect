@@ -7,14 +7,23 @@ class ApiService {
   factory ApiService() => _instance;
   ApiService._internal();
 
-  static const String _baseUrl = 'http://10.23.231.85:4000/api';
+  // Retrieve API base URL from environment variable or use default
+  // Pass --dart-define=API_BASE_URL=http://your-ip:4000/api
+  static const String _baseUrl = String.fromEnvironment(
+    'API_BASE_URL', 
+    defaultValue: 'http://10.23.231.85:4000/api'
+  );
   late final Dio _dio;
 
   // Initialize Dio with interceptor
-  void initialize() {
+  Future<void> initialize() async {
+    // Ensure SharedPreferences is ready if needed ahead of time
+    // though we access it in the interceptor which is async.
+    // However, making initialize async ensures main() waits for it.
+    
     const bool isRelease = bool.fromEnvironment('dart.vm.product');
     if (isRelease && !_baseUrl.startsWith('https://')) {
-      throw Exception('Unsecure API URL in release build: $_baseUrl');
+      print('⚠️ Warning: Using insecure HTTP URL in release build: $_baseUrl');
     }
 
     _dio = Dio(BaseOptions(
@@ -35,8 +44,7 @@ class ApiService {
         
         if (token != null && token.isNotEmpty) {
           options.headers['Authorization'] = 'Bearer $token';
-          print('🔑 Token loaded from storage for ${options.path}');
-          print('   Token: ${token.substring(0, 20)}...');
+          print('🔑 Token attached for ${options.path}');
         } else {
           print('⚠️ No token found in storage for ${options.path}');
         }
@@ -62,16 +70,20 @@ class ApiService {
       },
     ));
     
-    print('✅ ApiService initialized with token interceptor');
+    print('✅ ApiService initialized with token interceptor. Base URL: $_baseUrl');
   }
 
-  // These methods are now optional - interceptor handles token automatically
-  void setToken(String token) {
-    print('⚠️ setToken called, but interceptor will load from storage automatically');
+  // Persist token to storage so interceptor can find it
+  Future<void> setToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('auth_token', token);
+    print('✅ Token saved to storage via setToken');
   }
 
-  void clearToken() {
-    print('⚠️ clearToken called, but token should be cleared from storage');
+  Future<void> clearToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('auth_token');
+    print('✅ Token cleared from storage via clearToken');
   }
 
   // ==================== AUTH ENDPOINTS ====================

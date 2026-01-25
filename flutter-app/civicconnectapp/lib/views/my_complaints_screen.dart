@@ -118,7 +118,7 @@ class _MyComplaintsScreenState extends State<MyComplaintsScreen> {
       final title = complaint['title']?.toString() ?? 'No Title';
       final description = complaint['description']?.toString() ?? '';
       final category = complaint['category']?.toString() ?? 'other';
-      final upvotes = complaint['upvote_count'] ?? complaint['upvotes'] ?? 0;
+      final upvotes = complaint['upvotes_count'] ?? complaint['upvote_count'] ?? complaint['upvotes'] ?? 0;
       final createdAt = complaint['created_at']?.toString() ?? '';
       
       // Debug: Print raw complaint data
@@ -143,12 +143,13 @@ class _MyComplaintsScreenState extends State<MyComplaintsScreen> {
               print('   ✅ Added string URL: $img');
             } else if (img is Map) {
               print('   Image is Map with keys: ${img.keys}');
-              if (img['url'] != null) {
-                imageUrls.add(img['url'].toString());
-                print('   ✅ Added URL from map: ${img['url']}');
-              } else if (img['image_url'] != null) {
+              // Try image_url first (Prisma default), then url
+              if (img['image_url'] != null) {
                 imageUrls.add(img['image_url'].toString());
                 print('   ✅ Added image_url from map: ${img['image_url']}');
+              } else if (img['url'] != null) {
+                imageUrls.add(img['url'].toString());
+                print('   ✅ Added URL from map: ${img['url']}');
               }
             }
           }

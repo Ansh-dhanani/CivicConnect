@@ -7,22 +7,34 @@ async function main() {
   console.log('Start seeding ...');
 
   // Cleanup existing data
-  await prisma.complaintImage.deleteMany();
-  await prisma.potholeImage.deleteMany();
-  await prisma.complaintUpvote.deleteMany();
-  await prisma.notification.deleteMany();
-  await prisma.complaint.deleteMany();
-  await prisma.potholes.deleteMany();
-  await prisma.user.deleteMany();
-  await prisma.ward.deleteMany();
-  await prisma.repairTeam.deleteMany();
+  // We use a transaction to ensure all deletes succeed or fail together, preventing partial wipes
+  await prisma.$transaction([
+    prisma.complaintImage.deleteMany(),
+    prisma.potholeImage.deleteMany(),
+    prisma.complaintUpvote.deleteMany(),
+    prisma.notification.deleteMany(),
+    prisma.complaint.deleteMany(),
+    prisma.potholes.deleteMany(),
+    prisma.wardStatistic.deleteMany(), // Added before deleting Ward
+    prisma.ward.deleteMany(),
+    prisma.repairTeam.deleteMany(),
+    prisma.user.deleteMany(),
+  ]);
   
   // Create Admin
-  const hashedPassword = await bcrypt.hash('Admin@123', 10);
+  const adminEmail = process.env.SEED_ADMIN_EMAIL || 'admin@civicconnect.gov';
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD || 'Admin@123';
+  
+  // Fail fast in non-dev environments if credentials are missing
+  if (process.env.NODE_ENV === 'production' && (!process.env.SEED_ADMIN_EMAIL || !process.env.SEED_ADMIN_PASSWORD)) {
+    throw new Error('SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD are required in production');
+  }
+
+  const hashedAdminPassword = await bcrypt.hash(adminPassword, 10);
   const admin = await prisma.user.create({
     data: {
-      email: 'admin@civicconnect.gov',
-      password: hashedPassword,
+      email: adminEmail,
+      password: hashedAdminPassword,
       full_name: 'System Administrator',
       phone: '+91-9876543210',
       role: 'admin',
@@ -33,11 +45,14 @@ async function main() {
   console.log(`Created admin: ${admin.email}`);
 
   // Create Citizen
-  const citizenPassword = await bcrypt.hash('Citizen@123', 10);
+  const citizenEmail = process.env.SEED_CITIZEN_EMAIL || 'citizen1@example.com';
+  const citizenPassword = process.env.SEED_CITIZEN_PASSWORD || 'Citizen@123';
+  const hashedCitizenPassword = await bcrypt.hash(citizenPassword, 10);
+  
   const citizen = await prisma.user.create({
     data: {
-      email: 'citizen1@example.com',
-      password: citizenPassword,
+      email: citizenEmail,
+      password: hashedCitizenPassword,
       full_name: 'Amit Patel',
       phone: '+91-9123456789',
       role: 'citizen',
