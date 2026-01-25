@@ -14,18 +14,24 @@ class _SignupScreenState extends State<SignupScreen> {
   final AuthController authController = Get.find<AuthController>();
   late final TextEditingController emailController;
   late final TextEditingController passwordController;
+  late final TextEditingController fullNameController;
+  late final TextEditingController phoneController;
 
   @override
   void initState() {
     super.initState();
     emailController = TextEditingController();
     passwordController = TextEditingController();
+    fullNameController = TextEditingController();
+    phoneController = TextEditingController();
   }
 
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
+    fullNameController.dispose();
+    phoneController.dispose();
     super.dispose();
   }
 
@@ -55,11 +61,35 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
               const SizedBox(height: 40),
               TextField(
+                controller: fullNameController,
+                keyboardType: TextInputType.name,
+                decoration: InputDecoration(
+                  labelText: "Full Name",
+                  prefixIcon: const Icon(Icons.person_outline),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
                 controller: emailController,
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   labelText: "Email",
                   prefixIcon: const Icon(Icons.email_outlined),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: phoneController,
+                keyboardType: TextInputType.phone,
+                decoration: InputDecoration(
+                  labelText: "Phone Number",
+                  prefixIcon: const Icon(Icons.phone_outlined),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   filled: true,
                   fillColor: Colors.grey.shade50,
@@ -82,7 +112,12 @@ class _SignupScreenState extends State<SignupScreen> {
                   ? const Center(child: CircularProgressIndicator())
                   : ElevatedButton(
                       onPressed: () {
-                        authController.register(emailController.text, passwordController.text);
+                        authController.register(
+                          email: emailController.text,
+                          password: passwordController.text,
+                          fullName: fullNameController.text,
+                          phone: phoneController.text,
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),

@@ -36,6 +36,13 @@ dependencies:
   cupertino_icons: ^1.0.8
   get: ^4.7.3
   dio: ^5.9.0
+  image_picker: ^1.0.7
+  shared_preferences: ^2.2.2
+  geolocator: ^11.0.0
+  permission_handler: ^11.2.0
+  cloudinary_api: ^1.1.1
+  cloudinary_url_gen: ^1.8.0
+  crypto: ^3.0.3
 
 dev_dependencies:
   flutter_test:

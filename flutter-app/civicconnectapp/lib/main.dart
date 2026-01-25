@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'views/login_screen.dart';
+import 'services/api_service.dart';
 
 void main() {
+  // Initialize ApiService singleton
+  ApiService().initialize();
+  
   runApp(const MyApp());
 }
 
