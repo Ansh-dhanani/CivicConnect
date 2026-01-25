@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'views/login_screen.dart';
+import 'services/api_service.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize ApiService singleton (awaits environment setup)
+  await ApiService().initialize();
+  
   runApp(const MyApp());
 }
 

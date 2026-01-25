@@ -5,6 +5,7 @@ import env from 'dotenv';
 import isAuthenticated from './middleware/isAuthenticated.js';
 import SessionController from './controllers/SessionController.js';
 import UserController from './controllers/UserController.js';
+import ComplaintController from './controllers/ComplaintController.js';
 
 env.config({
   path: './.env',
@@ -26,15 +27,21 @@ const main = async () => {
   );
 
   router.get('/', (req, res) => {
-    res.send('Hello World!');
+    res.send('CivicConnect API v1');
   });
 
-  router.post('/login', SessionController.loginWithEmailAndPassword);
-  router.post('/register', UserController.create);
-  
-  router.get('/test-jwt', isAuthenticated, (req, res) => {
-    res.status(200).json({ message: 'JWT is working!', user: req.payload });
-  });
+  // Auth & User
+  router.post('/auth/login', SessionController.loginWithEmailAndPassword);
+  router.post('/auth/register', UserController.create);
+  router.get('/users/profile', isAuthenticated, UserController.getProfile);
+  router.put('/users/profile', isAuthenticated, UserController.updateProfile);
+
+  // Complaints
+  router.post('/complaints', isAuthenticated, ComplaintController.create);
+  router.get('/complaints/my-complaints', isAuthenticated, ComplaintController.getMyComplaints);
+  router.get('/complaints/nearby', ComplaintController.getNearby); // Public? Or auth? Doc says nothing, usually public or auth. Let's make public for map view.
+  router.post('/complaints/:complaintId/upvote', isAuthenticated, ComplaintController.toggleUpvote);
+  router.delete('/complaints/:complaintId/upvote', isAuthenticated, ComplaintController.removeUpvote); // Use dedicated remove method
 
   app.use('/api', router);
 
