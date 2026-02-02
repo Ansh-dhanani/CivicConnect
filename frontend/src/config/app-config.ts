@@ -8,6 +8,6 @@ export const APP_CONFIG = {
   copyright: `© ${currentYear}, CivicConnect.`,
   meta: {
     title: "CivicConnect - Modern Next.js Dashboard Starter Template",
-    description: "CivicConnect is a modern pot hole detection system, Next.js 16, Tailwind CSS v4, and shadcn/ui.",
+    description: "CivicConnect is a modern pothole detection system, Next.js 16, Tailwind CSS v4, and shadcn/ui.",
   },
 };
