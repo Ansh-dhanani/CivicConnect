@@ -1,0 +1,500 @@
+[
+  {
+    "id": 1,
+    "location": "MG Road, Near City Mall",
+    "ward": "Ward 12",
+    "severity": "High",
+    "status": "In Progress",
+    "reportedDate": "2024-01-15",
+    "targetRepairDate": "2024-01-20",
+    "assignedCrew": "Team A",
+    "reportedBy": "Citizen App",
+    "imageUrl": "https://images.unsplash.com/photo-1590856029826-c7a73142bbf1?w=400&h=300&fit=crop",
+    "coordinates": [
+      22.5510259,
+      72.9186335
+    ]
+  },
+  {
+    "id": 2,
+    "location": "Station Road, Junction",
+    "ward": "Ward 5",
+    "severity": "Medium",
+    "status": "Completed",
+    "reportedDate": "2024-01-10",
+    "targetRepairDate": "2024-01-18",
+    "assignedCrew": "Team B",
+    "reportedBy": "Field Inspector",
+    "imageUrl": "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.0825,
+      72.89
+    ]
+  },
+  {
+    "id": 3,
+    "location": "Gandhi Nagar Main Street",
+    "ward": "Ward 8",
+    "severity": "Low",
+    "status": "Pending",
+    "reportedDate": "2024-01-18",
+    "targetRepairDate": "2024-01-25",
+    "assignedCrew": "Unassigned",
+    "reportedBy": "Citizen App",
+    "imageUrl": "https://images.unsplash.com/photo-1590856028826-c7a73142bbf1?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.07,
+      72.865
+    ]
+  },
+  {
+    "id": 4,
+    "location": "MG Road Duplicate Report",
+    "ward": "Ward 12",
+    "severity": "High",
+    "status": "Pending",
+    "reportedDate": "2024-01-16",
+    "targetRepairDate": "2024-01-21",
+    "assignedCrew": "Unassigned",
+    "reportedBy": "Citizen App",
+    "imageUrl": "https://images.unsplash.com/photo-1590856029826-c7a73142bbf1?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.0765,
+      72.878
+    ],
+    "isDuplicate": true,
+    "originalId": 1
+  },
+  {
+    "id": 5,
+    "location": "Nehru Park Road",
+    "ward": "Ward 3",
+    "severity": "Critical",
+    "status": "In Progress",
+    "reportedDate": "2024-01-12",
+    "targetRepairDate": "2024-01-16",
+    "assignedCrew": "Team C",
+    "reportedBy": "AI Detection",
+    "imageUrl": "https://images.unsplash.com/photo-1590856029826-c7a73142bbf1?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.088,
+      72.895
+    ]
+  },
+  {
+    "id": 6,
+    "location": "Industrial Area, Sector 4",
+    "ward": "Ward 15",
+    "severity": "Medium",
+    "status": "In Progress",
+    "reportedDate": "2024-01-17",
+    "targetRepairDate": "2024-01-24",
+    "assignedCrew": "Unassigned",
+    "reportedBy": "Citizen App",
+    "imageUrl": "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.064,
+      72.85
+    ]
+  },
+  {
+    "id": 7,
+    "location": "College Road, Gate 2",
+    "ward": "Ward 7",
+    "severity": "High",
+    "status": "In Progress",
+    "reportedDate": "2024-01-14",
+    "targetRepairDate": "2024-01-19",
+    "assignedCrew": "Team A",
+    "reportedBy": "Traffic Police",
+    "imageUrl": "https://images.unsplash.com/photo-1590856028826-c7a73142bbf1?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.091,
+      72.91
+    ]
+  },
+  {
+    "id": 8,
+    "location": "Market Street, Near Temple",
+    "ward": "Ward 11",
+    "severity": "Critical",
+    "status": "In Progress",
+    "reportedDate": "2024-01-13",
+    "targetRepairDate": "2024-01-17",
+    "assignedCrew": "Team D",
+    "reportedBy": "Field Inspector",
+    "imageUrl": "https://images.unsplash.com/photo-1590856029826-c7a73142bbf1?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.073,
+      72.882
+    ]
+  },
+  {
+    "id": 9,
+    "location": "Airport Road, Km 5",
+    "ward": "Ward 18",
+    "severity": "Low",
+    "status": "Completed",
+    "reportedDate": "2024-01-08",
+    "targetRepairDate": "2024-01-15",
+    "assignedCrew": "Team B",
+    "reportedBy": "Citizen App",
+    "imageUrl": "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.095,
+      72.86
+    ]
+  },
+  {
+    "id": 10,
+    "location": "School Lane, Block C",
+    "ward": "Ward 4",
+    "severity": "Medium",
+    "status": "Completed",
+    "reportedDate": "2024-01-09",
+    "targetRepairDate": "2024-01-16",
+    "assignedCrew": "Team C",
+    "reportedBy": "AI Detection",
+    "imageUrl": "https://images.unsplash.com/photo-1590856028826-c7a73142bbf1?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.068,
+      72.875
+    ]
+  },
+  {
+    "id": 11,
+    "location": "Ring Road, Junction 12",
+    "ward": "Ward 20",
+    "severity": "High",
+    "status": "Pending",
+    "reportedDate": "2024-01-19",
+    "targetRepairDate": "2024-01-23",
+    "assignedCrew": "Unassigned",
+    "reportedBy": "Citizen App",
+    "imageUrl": "https://images.unsplash.com/photo-1590856029826-c7a73142bbf1?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.06,
+      72.905
+    ]
+  },
+  {
+    "id": 12,
+    "location": "Park Avenue, West Gate",
+    "ward": "Ward 6",
+    "severity": "Critical",
+    "status": "In Progress",
+    "reportedDate": "2024-01-11",
+    "targetRepairDate": "2024-01-15",
+    "assignedCrew": "Team A",
+    "reportedBy": "Traffic Police",
+    "imageUrl": "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.085,
+      72.87
+    ]
+  },
+  {
+    "id": 13,
+    "location": "Main Bazaar Road",
+    "ward": "Ward 9",
+    "severity": "Medium",
+    "status": "Completed",
+    "reportedDate": "2024-01-07",
+    "targetRepairDate": "2024-01-14",
+    "assignedCrew": "Team B",
+    "reportedBy": "Field Inspector",
+    "imageUrl": "https://images.unsplash.com/photo-1590856028826-c7a73142bbf1?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.077,
+      72.885
+    ]
+  },
+  {
+    "id": 14,
+    "location": "Railway Station Approach",
+    "ward": "Ward 5",
+    "severity": "High",
+    "status": "In Progress",
+    "reportedDate": "2024-01-16",
+    "targetRepairDate": "2024-01-21",
+    "assignedCrew": "Team C",
+    "reportedBy": "AI Detection",
+    "imageUrl": "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.08,
+      72.865
+    ]
+  },
+  {
+    "id": 15,
+    "location": "Hospital Road, Gate 1",
+    "ward": "Ward 13",
+    "severity": "Critical",
+    "status": "In Progress",
+    "reportedDate": "2024-01-12",
+    "targetRepairDate": "2024-01-16",
+    "assignedCrew": "Team D",
+    "reportedBy": "Citizen App",
+    "imageUrl": "https://images.unsplash.com/photo-1590856029826-c7a73142bbf1?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.072,
+      72.9
+    ]
+  },
+  {
+    "id": 16,
+    "location": "Sports Complex Road",
+    "ward": "Ward 17",
+    "severity": "Low",
+    "status": "Pending",
+    "reportedDate": "2024-01-18",
+    "targetRepairDate": "2024-01-26",
+    "assignedCrew": "Unassigned",
+    "reportedBy": "Field Inspector",
+    "imageUrl": "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.065,
+      72.858
+    ]
+  },
+  {
+    "id": 17,
+    "location": "Garden Street, Block B",
+    "ward": "Ward 10",
+    "severity": "Medium",
+    "status": "Completed",
+    "reportedDate": "2024-01-06",
+    "targetRepairDate": "2024-01-13",
+    "assignedCrew": "Team A",
+    "reportedBy": "Citizen App",
+    "imageUrl": "https://images.unsplash.com/photo-1590856028826-c7a73142bbf1?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.089,
+      72.88
+    ]
+  },
+  {
+    "id": 18,
+    "location": "Bus Stand Road",
+    "ward": "Ward 8",
+    "severity": "High",
+    "status": "Pending",
+    "reportedDate": "2024-01-19",
+    "targetRepairDate": "2024-01-24",
+    "assignedCrew": "Unassigned",
+    "reportedBy": "Traffic Police",
+    "imageUrl": "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.071,
+      72.892
+    ]
+  },
+  {
+    "id": 19,
+    "location": "Church Street, South End",
+    "ward": "Ward 14",
+    "severity": "Low",
+    "status": "Completed",
+    "reportedDate": "2024-01-05",
+    "targetRepairDate": "2024-01-12",
+    "assignedCrew": "Team B",
+    "reportedBy": "AI Detection",
+    "imageUrl": "https://images.unsplash.com/photo-1590856028826-c7a73142bbf1?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.062,
+      72.872
+    ]
+  },
+  {
+    "id": 20,
+    "location": "IT Park Road, Block 3",
+    "ward": "Ward 19",
+    "severity": "Critical",
+    "status": "In Progress",
+    "reportedDate": "2024-01-13",
+    "targetRepairDate": "2024-01-17",
+    "assignedCrew": "Team C",
+    "reportedBy": "Field Inspector",
+    "imageUrl": "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.093,
+      72.915
+    ]
+  },
+  {
+    "id": 21,
+    "location": "Lake View Drive",
+    "ward": "Ward 16",
+    "severity": "Medium",
+    "status": "Pending",
+    "reportedDate": "2024-01-17",
+    "targetRepairDate": "2024-01-24",
+    "assignedCrew": "Unassigned",
+    "reportedBy": "Citizen App",
+    "imageUrl": "https://images.unsplash.com/photo-1590856028826-c7a73142bbf1?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.059,
+      72.845
+    ]
+  },
+  {
+    "id": 22,
+    "location": "Cemetery Road, North",
+    "ward": "Ward 2",
+    "severity": "High",
+    "status": "In Progress",
+    "reportedDate": "2024-01-14",
+    "targetRepairDate": "2024-01-19",
+    "assignedCrew": "Team D",
+    "reportedBy": "Citizen App",
+    "imageUrl": "https://images.unsplash.com/photo-1590856029826-c7a73142bbf1?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.092,
+      72.875
+    ]
+  },
+  {
+    "id": 23,
+    "location": "Mall Road, Junction 5",
+    "ward": "Ward 11",
+    "severity": "Critical",
+    "status": "In Progress",
+    "reportedDate": "2024-01-11",
+    "targetRepairDate": "2024-01-15",
+    "assignedCrew": "Team A",
+    "reportedBy": "Traffic Police",
+    "imageUrl": "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.074,
+      72.868
+    ]
+  },
+  {
+    "id": 24,
+    "location": "University Road, Gate 3",
+    "ward": "Ward 7",
+    "severity": "Medium",
+    "status": "Completed",
+    "reportedDate": "2024-01-08",
+    "targetRepairDate": "2024-01-15",
+    "assignedCrew": "Team B",
+    "reportedBy": "Field Inspector",
+    "imageUrl": "https://images.unsplash.com/photo-1590856028826-c7a73142bbf1?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.087,
+      72.902
+    ]
+  },
+  {
+    "id": 25,
+    "location": "Fire Station Road",
+    "ward": "Ward 4",
+    "severity": "Low",
+    "status": "Pending",
+    "reportedDate": "2024-01-18",
+    "targetRepairDate": "2024-01-26",
+    "assignedCrew": "Unassigned",
+    "reportedBy": "AI Detection",
+    "imageUrl": "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.066,
+      72.862
+    ]
+  },
+  {
+    "id": 26,
+    "location": "Police Station Road",
+    "ward": "Ward 9",
+    "severity": "High",
+    "status": "Pending",
+    "reportedDate": "2024-01-19",
+    "targetRepairDate": "2024-01-23",
+    "assignedCrew": "Unassigned",
+    "reportedBy": "Citizen App",
+    "imageUrl": "https://images.unsplash.com/photo-1590856029826-c7a73142bbf1?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.078,
+      72.897
+    ]
+  },
+  {
+    "id": 27,
+    "location": "Stadium Road, East Gate",
+    "ward": "Ward 15",
+    "severity": "Medium",
+    "status": "Completed",
+    "reportedDate": "2024-01-09",
+    "targetRepairDate": "2024-01-16",
+    "assignedCrew": "Team C",
+    "reportedBy": "Field Inspector",
+    "imageUrl": "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.063,
+      72.853
+    ]
+  },
+  {
+    "id": 28,
+    "location": "Bridge Road, South End",
+    "ward": "Ward 12",
+    "severity": "Critical",
+    "status": "In Progress",
+    "reportedDate": "2024-01-12",
+    "targetRepairDate": "2024-01-16",
+    "assignedCrew": "Team D",
+    "reportedBy": "Traffic Police",
+    "imageUrl": "https://images.unsplash.com/photo-1590856028826-c7a73142bbf1?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.075,
+      72.879
+    ]
+  },
+  {
+    "id": 29,
+    "location": "Temple Street, West",
+    "ward": "Ward 6",
+    "severity": "Low",
+    "status": "Completed",
+    "reportedDate": "2024-01-05",
+    "targetRepairDate": "2024-01-12",
+    "assignedCrew": "Team A",
+    "reportedBy": "AI Detection",
+    "imageUrl": "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.084,
+      72.867
+    ]
+  },
+  {
+    "id": 30,
+    "location": "Market Circle, Center",
+    "ward": "Ward 10",
+    "severity": "High",
+    "status": "In Progress",
+    "reportedDate": "2024-01-15",
+    "targetRepairDate": "2024-01-20",
+    "assignedCrew": "Team B",
+    "reportedBy": "Citizen App",
+    "imageUrl": "https://images.unsplash.com/photo-1590856029826-c7a73142bbf1?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.09,
+      72.888
+    ]
+  },
+  {
+    "id": 31,
+    "location": "Highway Bypass, Exit 8",
+    "ward": "Ward 20",
+    "severity": "Medium",
+    "status": "Pending",
+    "reportedDate": "2024-01-17",
+    "targetRepairDate": "2024-01-24",
+    "assignedCrew": "Unassigned",
+    "reportedBy": "Field Inspector",
+    "imageUrl": "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=400&h=300&fit=crop",
+    "coordinates": [
+      19.058,
+      72.912
+    ]
+  }
+]
